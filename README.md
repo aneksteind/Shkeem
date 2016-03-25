@@ -2,7 +2,7 @@
 a Scheme interpreter written in Haskell
 
 This is a fully functional scheme interpreter. 
-It was created by following through the book Write Yourself a Scheme.
+It was created by following through the book Write Yourself a Scheme, including the exercises.
 It works with the basic aspects, including...
 
 - if statements
