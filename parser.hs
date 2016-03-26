@@ -1,9 +1,6 @@
 module Parser where
 import Header
-import Text.ParserCombinators.Parsec hiding (spaces)
-import Numeric
-import Data.Ratio
-import Data.Array
+import DataTypes
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom

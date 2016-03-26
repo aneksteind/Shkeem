@@ -1,15 +1,10 @@
 module REPL where
 
-import Parser
-import Evaluator
 import Header
+import DataTypes
 import ErrorHandler
-import Control.Monad
-import System.Environment
-import Control.Monad.Except
-import Control.Monad.Trans.Except
-import Text.ParserCombinators.Parsec hiding (spaces)
-import System.IO
+import Evaluator
+import Parser
 
 runRepl :: IO ()
 runRepl = until_ (== "quit") (readPrompt "Lisp>>> ") evalAndPrint

@@ -1,8 +1,7 @@
 module ErrorHandler where
 import Header
+import DataTypes
 import Parser
-import Control.Monad.Except
-import Control.Monad.Trans.Except
 
 showError :: LispException -> String
 showError (UnboundVar message varname)  = message ++ ": " ++ varname
@@ -15,8 +14,6 @@ showError (TypeMismatch expected found) = "Invalid type: expected " ++ expected
 showError (Parser parseErr)             = "Parse error at " ++ show parseErr
 
 instance Show LispException where show = showError
-
-
 
 trapError action = catchError action (return . show)
 

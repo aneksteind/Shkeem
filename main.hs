@@ -1,19 +1,9 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Main where
-    
-import Parser
-import Evaluator
 import Header
-import ErrorHandler
+import DataTypes
 import REPL
-import Control.Monad
-import System.Environment
-import Control.Monad.Except
-import Control.Monad.Trans.Except
-import Text.ParserCombinators.Parsec hiding (spaces)
-import System.IO
-
 
 
 main :: IO ()

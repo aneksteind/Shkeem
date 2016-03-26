@@ -1,9 +1,6 @@
 module Evaluator where
-import ErrorHandler
 import Header
-import Parser
-import Control.Monad.Except
-import Control.Monad.Trans.Except
+import DataTypes
 
 eval :: LispVal -> ThrowsException LispVal
 eval val@(String _) = return val
