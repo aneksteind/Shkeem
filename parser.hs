@@ -172,6 +172,7 @@ showVal (Bool False) = "#f"
 showVal (List contents) = "(" ++ unwordsList contents ++ ")"
 showVal (DottedList head tail) = "(" ++ unwordsList head ++ " . " ++ showVal tail ++ ")"
 showVal (Float contents) = show contents
+showVal (Character contents) = show contents
 
 unwordsList :: [LispVal] -> String
 unwordsList = unwords . map showVal

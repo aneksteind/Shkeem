@@ -76,6 +76,8 @@ primitives = [("+", numericBinop (+)),
               ("list?", unaryOp listp),
               ("symbol->string", unaryOp symbol2string),
               ("string->symbol", unaryOp string2symbol),
+              ("string-length", unaryOp strLength),
+              ("string-ref", stringRef),
               ("car", car),
               ("cdr", cdr),
               ("cons", cons),
@@ -140,6 +142,13 @@ symbol2string (Atom s)   = String s
 symbol2string _          = String ""
 string2symbol (String s) = Atom s
 string2symbol _          = Atom ""
+
+stringRef :: [LispVal] -> ThrowsException LispVal
+stringRef [(String s),(Number x)] = return $ Character $ s !! fromIntegral x
+stringRef [badArg] = throwError $ TypeMismatch "pair" badArg
+
+strLength :: LispVal -> LispVal
+strLength (String s) = Number . fromIntegral $ length s
 
 car :: [LispVal] -> ThrowsException LispVal
 car [List (x : xs)]         = return x

@@ -3,10 +3,6 @@
 module Header where
 
 import Text.ParserCombinators.Parsec hiding (spaces)
-import System.Environment
-import Control.Monad
-
-
 import Data.Array
 import Data.Complex
 
