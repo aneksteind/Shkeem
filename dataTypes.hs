@@ -28,3 +28,5 @@ data Unpacker = forall a. Eq a => AnyUnpacker (LispVal -> ThrowsException a)
 type ThrowsException = Either LispException
 
 type Env = IORef [(String, IORef LispVal)]
+
+type IOThrowsException = ExceptT LispException IO

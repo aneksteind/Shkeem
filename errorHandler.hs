@@ -19,3 +19,10 @@ trapError action = catchError action (return . show)
 
 extractValue :: ThrowsException a -> a
 extractValue (Right val) = val
+
+liftThrows :: ThrowsException a -> IOThrowsException a
+liftThrows (Left err) = throwError err
+liftThrows (Right val) = return val
+
+runIOThrows :: IOThrowsException String -> IO String
+runIOThrows action = runExceptT (trapError action) >>= return . extractValue

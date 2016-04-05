@@ -5,9 +5,13 @@ import DataTypes
 import ErrorHandler
 import Evaluator
 import Parser
+import Assignment
+
+runOne :: String -> IO ()
+runOne expr = nullEnv >>= flip evalAndPrint expr
 
 runRepl :: IO ()
-runRepl = until_ (== "quit") (readPrompt "Lisp>>> ") evalAndPrint
+runRepl = nullEnv >>= until_ (== "quit") (readPrompt "Lisp>>> ") . evalAndPrint
 
 until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
 until_ pred prompt action = do 
@@ -22,11 +26,11 @@ readPrompt prompt = flushStr prompt >> getLine
 flushStr :: String -> IO ()
 flushStr str = putStr str >> hFlush stdout
 
-evalAndPrint :: String -> IO ()
-evalAndPrint expr =  evalString expr >>= putStrLn
+evalAndPrint :: Env -> String -> IO ()
+evalAndPrint env expr =  evalString env expr >>= putStrLn
 
-evalString :: String -> IO String
-evalString expr = return $ extractValue $ trapError (liftM show $ readExpr expr >>= eval)
+evalString :: Env -> String -> IO String
+evalString env expr = runIOThrows $ liftM show $ (liftThrows $ readExpr expr) >>= eval env
 
 readExpr :: String -> ThrowsException LispVal
 readExpr input = case parse parseExpr "lisp" input of
