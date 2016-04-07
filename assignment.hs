@@ -4,6 +4,7 @@ import Data.IORef
 import Header
 import DataTypes
 import ErrorHandler
+import Parser
 
 nullEnv :: IO Env
 nullEnv = newIORef []
@@ -40,3 +41,8 @@ bindVars envRef bindings = readIORef envRef >>= extendEnv bindings >>= newIORef
      where extendEnv bindings env = liftM (++ env) (mapM addBinding bindings)
            addBinding (var, value) = do ref <- newIORef value
                                         return (var, ref)
+                                        
+makeFunc :: (Maybe String) -> Env -> [LispVal] -> [LispVal] -> IOThrowsException LispVal
+makeFunc varargs env params body = return $ Func (map showVal params) varargs body env
+makeNormalFunc = makeFunc Nothing
+makeVarArgs = makeFunc . Just . showVal

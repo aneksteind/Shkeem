@@ -13,7 +13,11 @@ data LispVal = Nil
              | Character Char
              | Float Double
              | Ratio Rational
-             | Vector (Array Int LispVal) deriving (Eq)
+             | Vector (Array Int LispVal)
+             | PrimitiveFunc ([LispVal] -> ThrowsException LispVal)
+             | Func { params :: [String], vararg :: (Maybe String), body :: [LispVal], closure :: Env }
+             
+
 
 data LispException = NumArgs Integer [LispVal]
                | TypeMismatch String LispVal
