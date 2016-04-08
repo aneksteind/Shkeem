@@ -1,6 +1,5 @@
 module Assignment where
 
-import Data.IORef
 import Header
 import DataTypes
 import ErrorHandler

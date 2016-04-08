@@ -16,6 +16,8 @@ data LispVal = Nil
              | Vector (Array Int LispVal)
              | PrimitiveFunc ([LispVal] -> ThrowsException LispVal)
              | Func { params :: [String], vararg :: (Maybe String), body :: [LispVal], closure :: Env }
+             | IOFunc ([LispVal] -> IOThrowsException LispVal)
+             | Port Handle
              
 
 

@@ -3,6 +3,8 @@ import Header
 import DataTypes
 import Assignment
 import ErrorHandler
+import Parser
+
 
 eval :: Env -> LispVal -> IOThrowsException LispVal
 eval env val@(String _) = return val
@@ -44,6 +46,8 @@ eval env (List (Atom "lambda" : DottedList params varargs : body)) =
      makeVarArgs varargs env params body
 eval env (List (Atom "lambda" : varargs@(Atom _) : body)) =
      makeVarArgs varargs env [] body
+eval env (List [Atom "load", String filename]) = 
+     load filename >>= liftM last . mapM (eval env)
 eval env (List (function : args)) = do
      func <- eval env function
      argVals <- mapM (eval env) args
@@ -61,6 +65,10 @@ cond env ((List a) : _) = throwError $ NumArgs 2 a
 cond env (a : _) = throwError $ NumArgs 2 [a]
 cond env _ = throwError $ Default "Not viable alternative in cond"
 
+applyProc :: [LispVal] -> IOThrowsException LispVal
+applyProc [func, List args] = apply func args
+applyProc (func : args)     = apply func args
+
 apply :: LispVal -> [LispVal] -> IOThrowsException LispVal
 apply (PrimitiveFunc func) args = liftThrows $ func args
 apply (Func params varargs body closure) args =
@@ -73,47 +81,8 @@ apply (Func params varargs body closure) args =
             bindVarArgs arg env = case arg of
                 Just argName -> liftIO $ bindVars env [(argName, List $ remainingArgs)]
                 Nothing -> return env
+apply (IOFunc func) args = func args
 
-primitives :: [(String, [LispVal] -> ThrowsException LispVal)]
-primitives = [("+", numericBinop (+)),
-              ("-", numericBinop (-)),
-              ("*", numericBinop (*)),
-              ("/", numericBinop div),
-              ("mod", numericBinop mod),
-              ("quotient", numericBinop quot),
-              ("remainder", numericBinop rem),
-              ("=", numBoolBinop (==)),
-              ("<", numBoolBinop (<)),
-              (">", numBoolBinop (>)),
-              ("/=", numBoolBinop (/=)),
-              (">=", numBoolBinop (>=)),
-              ("<=", numBoolBinop (<=)),
-              ("&&", boolBoolBinop (&&)),
-              ("||", boolBoolBinop (||)),
-              ("string=?", strBoolBinop (==)),
-              ("string<?", strBoolBinop (<)),
-              ("string>?", strBoolBinop (>)),
-              ("string<=?", strBoolBinop (<=)),
-              ("string>=?", strBoolBinop (>=)),
-              ("symbol?", unaryOp symbolp),
-              ("string?", unaryOp stringp),
-              ("number?", unaryOp numberp),
-              ("bool?", unaryOp boolp),
-              ("list?", unaryOp listp),
-              ("symbol->string", unaryOp symbol2string),
-              ("string->symbol", unaryOp string2symbol),
-              ("string-length", unaryOp strLength),
-              ("string-ref", stringRef),
-              ("car", car),
-              ("cdr", cdr),
-              ("cons", cons),
-              ("eq?", eqv),
-              ("eqv?", eqv),
-              ("equal?", equal)]
-
-primitiveBindings :: IO Env
-primitiveBindings = nullEnv >>= (flip bindVars $ map makePrimitiveFunc primitives)
-     where makePrimitiveFunc (var, func) = (var, PrimitiveFunc func)
 
 numericBinop :: (Integer -> Integer -> Integer) -> [LispVal] -> ThrowsException LispVal
 numericBinop op           []  = throwError $ NumArgs 2 []
@@ -234,3 +203,14 @@ eqPair :: ([LispVal] -> ThrowsException LispVal) -> (LispVal,LispVal) -> Bool
 eqPair comp (v1,v2) = case comp [v1,v2] of
   Left err -> False
   Right (Bool val) -> val
+
+load :: String -> IOThrowsException [LispVal]
+load filename = (liftIO $ readFile filename) >>= liftThrows . readExprList
+
+readOrThrow :: Parser a -> String -> ThrowsException a
+readOrThrow parser input = case parse parser "lisp" input of
+    Left err -> throwError $ Parser err
+    Right val -> return val
+
+readExpr = readOrThrow parseExpr
+readExprList = readOrThrow (endBy parseExpr spaces)
