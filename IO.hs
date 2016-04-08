@@ -30,10 +30,6 @@ readAll [String filename] = liftM List $ load filename
 readPrompt :: String -> IO String
 readPrompt prompt = flushStr prompt >> getLine
 
-
-
-
-
 until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
 until_ pred prompt action = do 
    result <- prompt

@@ -213,4 +213,4 @@ readOrThrow parser input = case parse parser "lisp" input of
     Right val -> return val
 
 readExpr = readOrThrow parseExpr
-readExprList = readOrThrow (endBy parseExpr spaces)
+readExprList = readOrThrow (endBy parseExpr (spaces <|> eof))
